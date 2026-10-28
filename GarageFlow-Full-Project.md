@@ -114,7 +114,7 @@ erDiagram
     }
 ```
 
-GORM menjalankan `AutoMigrate` saat backend mulai. Katalog awal berisi **78 sparepart** dari `backend/internal/database/parts_seed.json` (di-embed dengan `go:embed`), plus akun demo, 3 service job aktif, dan contoh aktivitas 7 hari terakhir. Seed bersifat idempoten: SKU yang sudah ada dilewati, sedangkan aktivitas demo hanya dibuat saat tabel penjualan dan service selesai masih kosong.
+GORM menjalankan `AutoMigrate` saat backend mulai. Katalog awal berisi **78 sparepart** dari `internal/database/parts_seed.json` (di-embed dengan `go:embed`), plus akun demo, 3 service job aktif, dan contoh aktivitas 7 hari terakhir. Seed bersifat idempoten: SKU yang sudah ada dilewati, sedangkan aktivitas demo hanya dibuat saat tabel penjualan dan service selesai masih kosong.
 
 ## 4. Fitur
 
@@ -204,7 +204,7 @@ set -a
 source .env
 set +a
 go mod download
-go run ./backend/cmd/api
+go run .
 ```
 
 ### Jalankan backend (Windows PowerShell)
@@ -216,7 +216,7 @@ $env:DB_PATH="garage.db"
 $env:JWT_SECRET="ganti-dengan-secret-acak-yang-panjang"
 $env:SEED_DEMO="true"
 go mod download
-go run ./backend/cmd/api
+go run .
 ```
 
 Catatan: `DB_PATH` relatif terhadap direktori tempat perintah dijalankan. Untuk PostgreSQL, set `DATABASE_URL` dan biarkan `DB_PATH` kosong.
@@ -331,6 +331,30 @@ Database default adalah **SQLite** (satu file, tanpa Docker). PostgreSQL tetap d
 - API: REST `/api/v1`
 - Version control: Git
 
+## Struktur folder
+Semua kode Go berada di root project agar sejajar dengan `go.mod` dan `go.sum`:
+
+```text
+garage inventory management/
+├── main.go              # entrypoint API (package main) — go run .
+├── go.mod
+├── go.sum
+├── internal/            # packages internal (hanya dipakai dari root)
+│   ├── config/          # pembacaan env
+│   ├── database/        # koneksi, migrasi, seed (go:embed parts_seed.json)
+│   ├── handlers/        # handler HTTP
+│   ├── middleware/      # JWT + role check
+│   └── models/          # model GORM
+├── frontend/            # React + Vite
+├── garage.db            # SQLite (dibuat otomatis saat API start)
+├── .env.example
+├── docker-compose.yml   # opsional: PostgreSQL
+├── README.md
+└── GarageFlow-Full-Project.md
+```
+
+Catatan: direktori `internal/` wajib berada di root — jika masih diletakkan di `backend/internal/`, maka `main.go` di root tidak boleh mengimpornya (aturan visibilitas `internal` Go).
+
 ## Tampilan & tema
 Frontend memakai tema *motorcycle garage* yang dibangun sebagai lapisan CSS override di bagian akhir `frontend/src/styles.css`, sehingga style dasar tetap utuh dan perubahan visual mudah dilacak per blok.
 
@@ -366,19 +390,19 @@ Dari root project:
 
 ```bash
 # Linux/macOS
-JWT_SECRET="ganti-dengan-secret-acak-yang-panjang" go run ./backend/cmd/api
+JWT_SECRET="ganti-dengan-secret-acak-yang-panjang" go run .
 ```
 
 ```powershell
 # Windows PowerShell
 $env:JWT_SECRET="ganti-dengan-secret-acak-yang-panjang"
-go run ./backend/cmd/api
+go run .
 ```
 
 Saat start, API otomatis:
 1. membuat file `garage.db` (SQLite) di root project,
 2. menjalankan `AutoMigrate`,
-3. mengisi katalog **78 sparepart** dari `backend/internal/database/parts_seed.json` (11 kategori, 10 item stok kritis) plus akun demo, 3 service job aktif, dan contoh aktivitas 7 hari terakhir (27 penjualan dan 10 service selesai) bila database masih kosong.
+3. mengisi katalog **78 sparepart** dari `internal/database/parts_seed.json` (11 kategori, 10 item stok kritis) plus akun demo, 3 service job aktif, dan contoh aktivitas 7 hari terakhir (27 penjualan dan 10 service selesai) bila database masih kosong.
 
 Health check: http://localhost:8080/health
 
@@ -406,7 +430,7 @@ npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum ter
 ```bash
 docker compose up -d db
 export DATABASE_URL="postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable"
-go run ./backend/cmd/api
+go run .
 ```
 Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite di `DB_PATH` (default `garage.db`).
 
@@ -428,7 +452,7 @@ Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite 
 | `SEED_DEMO` | `true` | Seed akun demo + katalog 78 sparepart |
 
 ## Seed data sparepart
-`backend/internal/database/parts_seed.json` berisi 78 produk (SKU unik) dengan field `sku`, `name`, `category`, `brand`, `location`, `stock`, `min_stock`, `unit_price`:
+`internal/database/parts_seed.json` berisi 78 produk (SKU unik) dengan field `sku`, `name`, `category`, `brand`, `location`, `stock`, `min_stock`, `unit_price`:
 
 - Pelumas (8), Pengapian (8), Rem (10), Filter (8), Ban & Roda (8), Rantai & Gir (7), Kelistrikan (7), Mesin (8), Suspensi & Kaki-kaki (6), Body & Aksesoris (5), Cairan (3).
 - 10 item punya `stock <= min_stock` sehingga langsung muncul di panel "Perlu restock".
@@ -754,7 +778,7 @@ rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 ```
 
 
-## File: `backend/cmd/api/main.go`
+## File: `main.go`
 
 ```go
 package main
@@ -765,10 +789,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"motorcycle-garage-inventory/backend/internal/config"
-	"motorcycle-garage-inventory/backend/internal/database"
-	"motorcycle-garage-inventory/backend/internal/handlers"
-	"motorcycle-garage-inventory/backend/internal/middleware"
+	"motorcycle-garage-inventory/internal/config"
+	"motorcycle-garage-inventory/internal/database"
+	"motorcycle-garage-inventory/internal/handlers"
+	"motorcycle-garage-inventory/internal/middleware"
 )
 
 func main() {
@@ -832,7 +856,7 @@ func main() {
 ```
 
 
-## File: `backend/internal/config/config.go`
+## File: `internal/config/config.go`
 
 ```go
 package config
@@ -870,7 +894,7 @@ func env(k, fallback string) string {
 ```
 
 
-## File: `backend/internal/database/database.go`
+## File: `internal/database/database.go`
 
 ```go
 package database
@@ -886,7 +910,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"motorcycle-garage-inventory/backend/internal/models"
+	"motorcycle-garage-inventory/internal/models"
 )
 
 //go:embed parts_seed.json
@@ -1136,7 +1160,7 @@ func seedActivity(db *gorm.DB) error {
 ```
 
 
-## File: `backend/internal/database/parts_seed.json`
+## File: `internal/database/parts_seed.json`
 
 ```json
 [
@@ -1924,7 +1948,7 @@ func seedActivity(db *gorm.DB) error {
 ```
 
 
-## File: `backend/internal/handlers/handlers.go`
+## File: `internal/handlers/handlers.go`
 
 ```go
 package handlers
@@ -1941,8 +1965,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"motorcycle-garage-inventory/backend/internal/config"
-	"motorcycle-garage-inventory/backend/internal/models"
+	"motorcycle-garage-inventory/internal/config"
+	"motorcycle-garage-inventory/internal/models"
 )
 
 type Handler struct {
@@ -2534,7 +2558,7 @@ func (h *Handler) Dashboard(c *gin.Context) {
 ```
 
 
-## File: `backend/internal/middleware/auth.go`
+## File: `internal/middleware/auth.go`
 
 ```go
 package middleware
@@ -2594,7 +2618,7 @@ func RequireRole(role string) gin.HandlerFunc {
 ```
 
 
-## File: `backend/internal/models/models.go`
+## File: `internal/models/models.go`
 
 ```go
 package models

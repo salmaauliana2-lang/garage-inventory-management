@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"motorcycle-garage-inventory/backend/internal/models"
+	"motorcycle-garage-inventory/internal/models"
 )
 
 //go:embed parts_seed.json

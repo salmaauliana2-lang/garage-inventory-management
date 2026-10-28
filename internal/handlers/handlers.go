@@ -12,8 +12,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"motorcycle-garage-inventory/backend/internal/config"
-	"motorcycle-garage-inventory/backend/internal/models"
+	"motorcycle-garage-inventory/internal/config"
+	"motorcycle-garage-inventory/internal/models"
 )
 
 type Handler struct {

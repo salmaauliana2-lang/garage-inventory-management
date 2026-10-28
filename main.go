@@ -6,10 +6,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"motorcycle-garage-inventory/backend/internal/config"
-	"motorcycle-garage-inventory/backend/internal/database"
-	"motorcycle-garage-inventory/backend/internal/handlers"
-	"motorcycle-garage-inventory/backend/internal/middleware"
+	"motorcycle-garage-inventory/internal/config"
+	"motorcycle-garage-inventory/internal/database"
+	"motorcycle-garage-inventory/internal/handlers"
+	"motorcycle-garage-inventory/internal/middleware"
 )
 
 func main() {
