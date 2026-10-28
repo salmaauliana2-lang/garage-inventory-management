@@ -225,6 +225,17 @@ npm run dev
 
 Buka `http://localhost:5173`. Backend berjalan di `http://localhost:8080`; health check `http://localhost:8080/health`.
 
+### Deploy ke Hostless Cloud
+
+Repository ini siap di-auto-build oleh Hostless (docs.hostless.cloud): push ke `main` → build → health check `GET /health` → rute HTTPS.
+
+- **Port & interface:** aplikasi memakai env `PORT` bila platform menyetelnya (urutan `APP_PORT` → `PORT` → `8080`) dan bind ke `0.0.0.0`, sesuai kontrak runtime Hostless.
+- **Frontend satu binary:** `npm run build` menghasilkan `frontend/dist` yang di-embed ke binary Go (`//go:embed all:frontend/dist`), sehingga URL aplikasi langsung menyajikan UI + API dari origin yang sama; `VITE_API_URL=/api/v1` berasal dari `frontend/.env.production`.
+- **`hostless.yaml`** di root mengatur build system auto, scaling 1 replica (0.5 vCPU / 512 MB), dan health check `/health` tiap 30 detik.
+- **Env dashboard:** `GIN_MODE=release`, `JWT_SECRET` acak panjang, `SEED_DEMO=true`.
+- **Data:** tanpa volume, SQLite bersifat sementara — tiap deploy ulang database dibuat ulang dari seed JSON.
+- Setelah mengubah UI: `cd frontend && npm run build` lalu commit `frontend/dist`.
+
 ### Akun demo
 
 | Role | Email | Password |
@@ -296,7 +307,6 @@ CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```text
 .env
 node_modules/
-dist/
 coverage.out
 *.log
 *.db
@@ -338,7 +348,10 @@ garage inventory management/
 │   ├── middleware/      # JWT + role check
 │   └── models/          # model GORM
 ├── frontend/            # React + Vite
+│   ├── .env.production  # VITE_API_URL=/api/v1 (dipakai npm run build)
+│   └── dist/            # hasil build — ter-embed ke binary Go (commit saat ganti UI)
 ├── garage.db            # SQLite (dibuat otomatis saat API start)
+├── hostless.yaml        # konfigurasi deploy Hostless (auto-build dari GitHub)
 ├── .env.example
 ├── README.md
 └── GarageFlow-Full-Project.md
@@ -416,6 +429,16 @@ cd frontend
 npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum tergzip)
 ```
 
+## Deploy ke Hostless Cloud
+Repository ini siap di-auto-build oleh Hostless (docs.hostless.cloud): **push ke `main` → build → health check `GET /health` → rute HTTPS**.
+
+- **Port & interface:** aplikasi memakai env `PORT` bila platform menyetelnya (urutan: `APP_PORT` → `PORT` → `8080`) dan bind ke `0.0.0.0`, sesuai kontrak runtime Hostless.
+- **Frontend satu binary:** `npm run build` menghasilkan `frontend/dist` yang **di-embed ke binary Go** — URL aplikasi langsung menyajikan UI + API dari origin yang sama, jadi `VITE_API_URL=/api/v1` (relatif, dari `frontend/.env.production`) dan tanpa masalah CORS.
+- **`hostless.yaml`** (root) mengatur build system auto, scaling 1 replica (0.5 vCPU / 512 MB — di dalam kuota gratis), dan health check `GET /health` tiap 30 detik.
+- **Env di dashboard Hostless:** `GIN_MODE=release`, `JWT_SECRET` acak panjang, `SEED_DEMO=true`; `CORS_ORIGINS` hanya perlu kalau frontend dijalankan di domain terpisah.
+- **Data:** tanpa volume, file SQLite bersifat sementara — setiap deploy/restart container, database dibuat ulang dari seed JSON (78 part + data demo).
+- **Setelah mengubah UI:** jalankan `cd frontend && npm run build` lalu commit `frontend/dist` bersama kodenya, karena dist ikut ter-embed saat server mem-build ulang.
+
 ## Akun demo
 - Pengelola: `manager@garage.local` / `Garage123!`
 - Montir: `mechanic@garage.local` / `Garage123!`
@@ -425,7 +448,8 @@ npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum ter
 ## Konfigurasi environment
 | Variabel | Default | Keterangan |
 |---|---|---|
-| `APP_PORT` | `8080` | Port API |
+| `PORT` | _(bawaan platform)_ | Port dari platform deploy (mis. Hostless); dipakai jika `APP_PORT` tidak diisi |
+| `APP_PORT` | `8080` | Port API untuk lokal (mendahului `PORT`) |
 | `GIN_MODE` | `debug` | Mode Gin (`release` untuk produksi) |
 | `DB_PATH` | `garage.db` | Lokasi file SQLite |
 | `JWT_SECRET` | `dev-only-change-me` | **Wajib diganti** |
@@ -715,13 +739,46 @@ rsc.io/pdf v0.1.1/go.mod h1:n8OzWcQ6Sp37PL01nO98y4iUCRdTGarVfzxY20ICaU4=
 ```
 
 
+## File: `hostless.yaml`
+
+```yaml
+# Konfigurasi deploy Hostless — lihat docs.hostless.cloud/app/hostlessfile
+# Terbaca otomatis setiap push ke repository ini.
+build:
+  system: auto
+  min_cpu: 0.1
+  max_cpu: 1
+  min_memory: 512
+  max_memory: 2048
+
+scaling:
+  trigger: http_requests
+  min_replicas: 1
+  max_replicas: 1
+  min_cpu: 0.1
+  max_cpu: 0.5
+  min_memory: 128
+  max_memory: 512
+
+health_check:
+  type: http
+  http_path: "/health"
+  interval_in_seconds: 30
+```
+
+
 ## File: `main.go`
 
 ```go
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
+	"net/http"
+	"path"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -731,6 +788,47 @@ import (
 	"motorcycle-garage-inventory/internal/handlers"
 	"motorcycle-garage-inventory/internal/middleware"
 )
+
+// Hasil build React (frontend/dist) di-embed ke binary, jadi satu file binary
+// sudah menyajikan API + halaman web. Jalankan `npm run build` di frontend
+// sebelum `go build`/`go run` agar isi terbaru ikut ter-embed.
+//
+//go:embed all:frontend/dist
+var distFS embed.FS
+
+// serveFrontend menyajikan file statis frontend/dist; path yang bukan file
+// (rute React seperti /parts) dijawab dengan index.html (SPA fallback),
+// sedangkan path di bawah /api/ yang tidak dikenal tetap balas JSON 404.
+func serveFrontend(r *gin.Engine) {
+	sub, err := fs.Sub(distFS, "frontend/dist")
+	if err != nil {
+		log.Fatalf("frontend dist: %v", err)
+	}
+	files := http.FileServer(http.FS(sub))
+	r.NoRoute(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
+			c.JSON(http.StatusNotFound, gin.H{"error": "endpoint tidak ditemukan"})
+			return
+		}
+		clean := strings.TrimPrefix(path.Clean(c.Request.URL.Path), "/")
+		if clean != "" {
+			if _, err := fs.Stat(sub, clean); err == nil {
+				if strings.HasPrefix(clean, "assets/") {
+					// Nama file hasil Vite sudah ber-hash — aman di-cache lama.
+					c.Header("Cache-Control", "public, max-age=31536000, immutable")
+				}
+				files.ServeHTTP(c.Writer, c.Request)
+				return
+			}
+		}
+		data, err := fs.ReadFile(sub, "index.html")
+		if err != nil {
+			c.String(http.StatusNotFound, "frontend belum dibuild (npm run build)")
+			return
+		}
+		c.Data(http.StatusOK, "text/html; charset=utf-8", data)
+	})
+}
 
 func main() {
 	cfg := config.Load()
@@ -785,6 +883,8 @@ func main() {
 	protected.PATCH("/services/:id/status", h.UpdateServiceStatus)
 	protected.GET("/dashboard", h.Dashboard)
 
+	serveFrontend(r)
+
 	port := cfg.Port
 	if port == "" {
 		port = "8080"
@@ -818,7 +918,9 @@ type Config struct {
 func Load() Config {
 	hours, _ := strconv.Atoi(env("JWT_EXPIRES_HOURS", "24"))
 	return Config{
-		Port:            env("APP_PORT", "8080"),
+		// APP_PORT untuk lokal; PORT dipakai platform deploy (mis. Hostless)
+		// yang mewajibkan aplikasi listen di port yang diberikan lewat env PORT.
+		Port:            env("APP_PORT", env("PORT", "8080")),
 		GinMode:         env("GIN_MODE", "debug"),
 		DBPath:          env("DB_PATH", "garage.db"),
 		JWTSecret:       env("JWT_SECRET", "dev-only-change-me"),
@@ -2681,6 +2783,16 @@ type StockMovement struct {
 
 ```html
 <!doctype html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#171e26"/><meta name="description" content="GarageFlow — inventory, penjualan, dan service board bengkel motor."/><title>GarageFlow — Workshop OS</title></head><body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body></html>
+```
+
+
+## File: `frontend/.env.production`
+
+```text
+# Dipakai saat `npm run build` (mode production).
+# Path relatif: frontend disajikan oleh binary Go di origin yang sama,
+# jadi request API mengikuti domain tanpa CORS.
+VITE_API_URL=/api/v1
 ```
 
 

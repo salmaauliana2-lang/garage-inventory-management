@@ -16,7 +16,9 @@ type Config struct {
 func Load() Config {
 	hours, _ := strconv.Atoi(env("JWT_EXPIRES_HOURS", "24"))
 	return Config{
-		Port:            env("APP_PORT", "8080"),
+		// APP_PORT untuk lokal; PORT dipakai platform deploy (mis. Hostless)
+		// yang mewajibkan aplikasi listen di port yang diberikan lewat env PORT.
+		Port:            env("APP_PORT", env("PORT", "8080")),
 		GinMode:         env("GIN_MODE", "debug"),
 		DBPath:          env("DB_PATH", "garage.db"),
 		JWTSecret:       env("JWT_SECRET", "dev-only-change-me"),
