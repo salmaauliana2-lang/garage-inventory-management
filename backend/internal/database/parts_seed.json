@@ -1,0 +1,782 @@
+[
+  {
+    "sku": "OIL-MTX-10W40",
+    "name": "Oli Mesin Motul 10W-40 1L",
+    "category": "Pelumas",
+    "brand": "Motul",
+    "location": "Rak A-01",
+    "stock": 24,
+    "min_stock": 6,
+    "unit_price": 95000
+  },
+  {
+    "sku": "OIL-YML-MATIC",
+    "name": "Oli Mesin Yamalube Matic 0.8L",
+    "category": "Pelumas",
+    "brand": "Yamalube",
+    "location": "Rak A-02",
+    "stock": 30,
+    "min_stock": 8,
+    "unit_price": 52000
+  },
+  {
+    "sku": "OIL-AHM-MPX2",
+    "name": "Oli Mesin AHM MPX2 0.8L",
+    "category": "Pelumas",
+    "brand": "AHM Oil",
+    "location": "Rak A-03",
+    "stock": 28,
+    "min_stock": 8,
+    "unit_price": 48000
+  },
+  {
+    "sku": "OIL-SHELL-AX7",
+    "name": "Oli Mesin Shell Advance AX7 1L",
+    "category": "Pelumas",
+    "brand": "Shell",
+    "location": "Rak A-04",
+    "stock": 18,
+    "min_stock": 6,
+    "unit_price": 68000
+  },
+  {
+    "sku": "OIL-YML-GARDAN",
+    "name": "Oli Gardan Yamalube 0.1L",
+    "category": "Pelumas",
+    "brand": "Yamalube",
+    "location": "Rak A-05",
+    "stock": 40,
+    "min_stock": 10,
+    "unit_price": 18000
+  },
+  {
+    "sku": "OIL-FDR-SPORT",
+    "name": "Oli Mesin FDR Sport 1L",
+    "category": "Pelumas",
+    "brand": "FDR",
+    "location": "Rak A-06",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 72000
+  },
+  {
+    "sku": "OIL-BRT-RACING",
+    "name": "Oli Mesin BRT Racing 0.8L",
+    "category": "Pelumas",
+    "brand": "BRT",
+    "location": "Rak A-07",
+    "stock": 10,
+    "min_stock": 3,
+    "unit_price": 78000
+  },
+  {
+    "sku": "OIL-TOP1-SYN",
+    "name": "Oli Mesin TOP 1 Synthetic 1L",
+    "category": "Pelumas",
+    "brand": "TOP 1",
+    "location": "Rak A-08",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 125000
+  },
+  {
+    "sku": "SPK-NGK-CR7",
+    "name": "Busi NGK CR7HSA",
+    "category": "Pengapian",
+    "brand": "NGK",
+    "location": "Rak B-01",
+    "stock": 36,
+    "min_stock": 10,
+    "unit_price": 28000
+  },
+  {
+    "sku": "SPK-NGK-CPR9",
+    "name": "Busi NGK CPR9EA-9",
+    "category": "Pengapian",
+    "brand": "NGK",
+    "location": "Rak B-02",
+    "stock": 20,
+    "min_stock": 6,
+    "unit_price": 42000
+  },
+  {
+    "sku": "SPK-DENSO-U22",
+    "name": "Busi Denso U22EPR-U",
+    "category": "Pengapian",
+    "brand": "Denso",
+    "location": "Rak B-03",
+    "stock": 24,
+    "min_stock": 8,
+    "unit_price": 26000
+  },
+  {
+    "sku": "SPK-NGK-IRIDIUM",
+    "name": "Busi NGK Iridium CR8EIX",
+    "category": "Pengapian",
+    "brand": "NGK",
+    "location": "Rak B-04",
+    "stock": 2,
+    "min_stock": 3,
+    "unit_price": 135000
+  },
+  {
+    "sku": "IGN-COIL-VIXION",
+    "name": "Koil Pengapian Vixion",
+    "category": "Pengapian",
+    "brand": "Yamaha",
+    "location": "Rak B-05",
+    "stock": 4,
+    "min_stock": 2,
+    "unit_price": 285000
+  },
+  {
+    "sku": "IGN-COIL-BEAT",
+    "name": "Koil Pengapian BeAT FI",
+    "category": "Pengapian",
+    "brand": "AHM",
+    "location": "Rak B-06",
+    "stock": 5,
+    "min_stock": 2,
+    "unit_price": 195000
+  },
+  {
+    "sku": "IGN-CDI-BEAT",
+    "name": "CDI Unit BeAT FI",
+    "category": "Pengapian",
+    "brand": "AHM",
+    "location": "Rak B-07",
+    "stock": 3,
+    "min_stock": 2,
+    "unit_price": 385000
+  },
+  {
+    "sku": "IGN-SPUL-BEAT",
+    "name": "Spul Stator BeAT FI",
+    "category": "Pengapian",
+    "brand": "AHM",
+    "location": "Rak B-08",
+    "stock": 2,
+    "min_stock": 2,
+    "unit_price": 520000
+  },
+  {
+    "sku": "BRK-PAD-DPN-01",
+    "name": "Kampas Rem Depan Aspira",
+    "category": "Rem",
+    "brand": "Aspira",
+    "location": "Rak C-01",
+    "stock": 22,
+    "min_stock": 6,
+    "unit_price": 65000
+  },
+  {
+    "sku": "BRK-PAD-BLK-01",
+    "name": "Kampas Rem Belakang Aspira",
+    "category": "Rem",
+    "brand": "Aspira",
+    "location": "Rak C-02",
+    "stock": 18,
+    "min_stock": 6,
+    "unit_price": 58000
+  },
+  {
+    "sku": "BRK-PAD-FDR-DPN",
+    "name": "Kampas Rem Depan FDR",
+    "category": "Rem",
+    "brand": "FDR",
+    "location": "Rak C-03",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 78000
+  },
+  {
+    "sku": "BRK-DISC-DPN-01",
+    "name": "Disc Brake Depan Vario 125",
+    "category": "Rem",
+    "brand": "AHM",
+    "location": "Rak C-04",
+    "stock": 4,
+    "min_stock": 2,
+    "unit_price": 245000
+  },
+  {
+    "sku": "BRK-DISC-BLK-01",
+    "name": "Disc Brake Belakang NMAX",
+    "category": "Rem",
+    "brand": "Yamaha",
+    "location": "Rak C-05",
+    "stock": 2,
+    "min_stock": 2,
+    "unit_price": 285000
+  },
+  {
+    "sku": "BRK-KALIPER-BEAT",
+    "name": "Kaliper Rem Depan BeAT",
+    "category": "Rem",
+    "brand": "AHM",
+    "location": "Rak C-06",
+    "stock": 2,
+    "min_stock": 1,
+    "unit_price": 375000
+  },
+  {
+    "sku": "BRK-MINYAK-DOT3",
+    "name": "Minyak Rem DOT 3 300ml",
+    "category": "Rem",
+    "brand": "Aspira",
+    "location": "Rak C-07",
+    "stock": 14,
+    "min_stock": 4,
+    "unit_price": 32000
+  },
+  {
+    "sku": "BRK-SEPATU-DPN",
+    "name": "Sepatu Rem Tromol Depan",
+    "category": "Rem",
+    "brand": "Aspira",
+    "location": "Rak C-08",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 48000
+  },
+  {
+    "sku": "BRK-SEPATU-BLK",
+    "name": "Sepatu Rem Tromol Belakang",
+    "category": "Rem",
+    "brand": "Aspira",
+    "location": "Rak C-09",
+    "stock": 9,
+    "min_stock": 4,
+    "unit_price": 45000
+  },
+  {
+    "sku": "BRK-SELANG-BRAID",
+    "name": "Selang Rem Braided Kawahara",
+    "category": "Rem",
+    "brand": "Kawahara",
+    "location": "Rak C-10",
+    "stock": 3,
+    "min_stock": 2,
+    "unit_price": 210000
+  },
+  {
+    "sku": "FLT-AIR-VARIO",
+    "name": "Filter Udara Vario 125/150",
+    "category": "Filter",
+    "brand": "AHM",
+    "location": "Rak D-01",
+    "stock": 16,
+    "min_stock": 5,
+    "unit_price": 42000
+  },
+  {
+    "sku": "FLT-AIR-NMAX",
+    "name": "Filter Udara NMAX",
+    "category": "Filter",
+    "brand": "Yamaha",
+    "location": "Rak D-02",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 55000
+  },
+  {
+    "sku": "FLT-OLI-BEAT",
+    "name": "Filter Oli BeAT FI",
+    "category": "Filter",
+    "brand": "AHM",
+    "location": "Rak D-03",
+    "stock": 25,
+    "min_stock": 8,
+    "unit_price": 22000
+  },
+  {
+    "sku": "FLT-OLI-VIXION",
+    "name": "Filter Oli Vixion",
+    "category": "Filter",
+    "brand": "Yamaha",
+    "location": "Rak D-04",
+    "stock": 18,
+    "min_stock": 6,
+    "unit_price": 27000
+  },
+  {
+    "sku": "FLT-BENSIN-BEAT",
+    "name": "Filter Bensin BeAT FI",
+    "category": "Filter",
+    "brand": "AHM",
+    "location": "Rak D-05",
+    "stock": 20,
+    "min_stock": 6,
+    "unit_price": 38000
+  },
+  {
+    "sku": "FLT-AIR-RACING",
+    "name": "Filter Udara Racing Kawahara",
+    "category": "Filter",
+    "brand": "Kawahara",
+    "location": "Rak D-06",
+    "stock": 5,
+    "min_stock": 2,
+    "unit_price": 145000
+  },
+  {
+    "sku": "FLT-OLI-UNIV",
+    "name": "Filter Oli Universal Aspira",
+    "category": "Filter",
+    "brand": "Aspira",
+    "location": "Rak D-07",
+    "stock": 30,
+    "min_stock": 10,
+    "unit_price": 18000
+  },
+  {
+    "sku": "FLT-BENSIN-NMAX",
+    "name": "Filter Bensin NMAX",
+    "category": "Filter",
+    "brand": "Yamaha",
+    "location": "Rak D-08",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 62000
+  },
+  {
+    "sku": "TIR-DPN-IRC-80",
+    "name": "Ban Luar Depan IRC 80/90-14",
+    "category": "Ban & Roda",
+    "brand": "IRC",
+    "location": "Rak E-01",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 178000
+  },
+  {
+    "sku": "TIR-BLK-IRC-90",
+    "name": "Ban Luar Belakang IRC 90/90-14",
+    "category": "Ban & Roda",
+    "brand": "IRC",
+    "location": "Rak E-02",
+    "stock": 8,
+    "min_stock": 4,
+    "unit_price": 195000
+  },
+  {
+    "sku": "TIR-DPN-FDR-70",
+    "name": "Ban Luar Depan FDR 70/90-17",
+    "category": "Ban & Roda",
+    "brand": "FDR",
+    "location": "Rak E-03",
+    "stock": 6,
+    "min_stock": 3,
+    "unit_price": 210000
+  },
+  {
+    "sku": "TIR-BLK-FDR-100",
+    "name": "Ban Luar Belakang FDR 100/80-17",
+    "category": "Ban & Roda",
+    "brand": "FDR",
+    "location": "Rak E-04",
+    "stock": 2,
+    "min_stock": 2,
+    "unit_price": 285000
+  },
+  {
+    "sku": "TIR-DLM-IRC-14",
+    "name": "Ban Dalam IRC 275-14",
+    "category": "Ban & Roda",
+    "brand": "IRC",
+    "location": "Rak E-05",
+    "stock": 15,
+    "min_stock": 5,
+    "unit_price": 42000
+  },
+  {
+    "sku": "TIR-DLM-FDR-17",
+    "name": "Ban Dalam FDR 300-17",
+    "category": "Ban & Roda",
+    "brand": "FDR",
+    "location": "Rak E-06",
+    "stock": 12,
+    "min_stock": 5,
+    "unit_price": 48000
+  },
+  {
+    "sku": "RODA-BEARING-6301",
+    "name": "Bearing Roda 6301",
+    "category": "Ban & Roda",
+    "brand": "NSK",
+    "location": "Rak E-07",
+    "stock": 20,
+    "min_stock": 6,
+    "unit_price": 35000
+  },
+  {
+    "sku": "RODA-BEARING-6302",
+    "name": "Bearing Roda 6302",
+    "category": "Ban & Roda",
+    "brand": "Koyo",
+    "location": "Rak E-08",
+    "stock": 16,
+    "min_stock": 6,
+    "unit_price": 42000
+  },
+  {
+    "sku": "RAN-RANTAI-428H",
+    "name": "Rantai RK 428H-120L",
+    "category": "Rantai & Gir",
+    "brand": "RK",
+    "location": "Rak F-01",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 165000
+  },
+  {
+    "sku": "RAN-RANTAI-DID",
+    "name": "Rantai DID 428D-118L",
+    "category": "Rantai & Gir",
+    "brand": "DID",
+    "location": "Rak F-02",
+    "stock": 6,
+    "min_stock": 3,
+    "unit_price": 195000
+  },
+  {
+    "sku": "RAN-GIR-DPN-14",
+    "name": "Gir Depan 14T BeAT",
+    "category": "Rantai & Gir",
+    "brand": "AHM",
+    "location": "Rak F-03",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 55000
+  },
+  {
+    "sku": "RAN-GIR-BLK-35",
+    "name": "Gir Belakang 35T BeAT",
+    "category": "Rantai & Gir",
+    "brand": "AHM",
+    "location": "Rak F-04",
+    "stock": 8,
+    "min_stock": 4,
+    "unit_price": 95000
+  },
+  {
+    "sku": "RAN-GIR-SET-BEAT",
+    "name": "Gir Set BeAT/Scoopy",
+    "category": "Rantai & Gir",
+    "brand": "AHM",
+    "location": "Rak F-05",
+    "stock": 5,
+    "min_stock": 2,
+    "unit_price": 165000
+  },
+  {
+    "sku": "RAN-KARET-GIR",
+    "name": "Karet Gir BeAT",
+    "category": "Rantai & Gir",
+    "brand": "AHM",
+    "location": "Rak F-06",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 38000
+  },
+  {
+    "sku": "RAN-GIR-SET-VIXION",
+    "name": "Gir Set Vixion",
+    "category": "Rantai & Gir",
+    "brand": "Yamaha",
+    "location": "Rak F-07",
+    "stock": 2,
+    "min_stock": 2,
+    "unit_price": 245000
+  },
+  {
+    "sku": "ELK-AKI-GS-GTZ5S",
+    "name": "Aki GS Astra GTZ5S",
+    "category": "Kelistrikan",
+    "brand": "GS Astra",
+    "location": "Rak G-01",
+    "stock": 6,
+    "min_stock": 3,
+    "unit_price": 235000
+  },
+  {
+    "sku": "ELK-AKI-YUASA-YTZ6V",
+    "name": "Aki Yuasa YTZ6V",
+    "category": "Kelistrikan",
+    "brand": "Yuasa",
+    "location": "Rak G-02",
+    "stock": 2,
+    "min_stock": 2,
+    "unit_price": 285000
+  },
+  {
+    "sku": "ELK-LAMPU-LED-H4",
+    "name": "Lampu LED H4 6000K",
+    "category": "Kelistrikan",
+    "brand": "Bosch",
+    "location": "Rak G-03",
+    "stock": 14,
+    "min_stock": 4,
+    "unit_price": 68000
+  },
+  {
+    "sku": "ELK-LAMPU-SEIN-DPN",
+    "name": "Lampu Sein Depan BeAT",
+    "category": "Kelistrikan",
+    "brand": "AHM",
+    "location": "Rak G-04",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 32000
+  },
+  {
+    "sku": "ELK-KLAKSON-12V",
+    "name": "Klakson Keong 12V",
+    "category": "Kelistrikan",
+    "brand": "Denso",
+    "location": "Rak G-05",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 85000
+  },
+  {
+    "sku": "ELK-REGULATOR-BEAT",
+    "name": "Regulator BeAT FI",
+    "category": "Kelistrikan",
+    "brand": "AHM",
+    "location": "Rak G-06",
+    "stock": 1,
+    "min_stock": 2,
+    "unit_price": 175000
+  },
+  {
+    "sku": "ELK-SEKERING-10A",
+    "name": "Sekring 10A (isi 10 pcs)",
+    "category": "Kelistrikan",
+    "brand": "Aspira",
+    "location": "Rak G-07",
+    "stock": 25,
+    "min_stock": 8,
+    "unit_price": 15000
+  },
+  {
+    "sku": "MSM-PISTON-BEAT",
+    "name": "Piston Kit BeAT 50mm",
+    "category": "Mesin",
+    "brand": "AHM",
+    "location": "Rak H-01",
+    "stock": 1,
+    "min_stock": 2,
+    "unit_price": 165000
+  },
+  {
+    "sku": "MSM-RING-SEHER-BEAT",
+    "name": "Ring Seher BeAT STD",
+    "category": "Mesin",
+    "brand": "AHM",
+    "location": "Rak H-02",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 62000
+  },
+  {
+    "sku": "MSM-PAKU-SIL-BEAT",
+    "name": "Paku Sil Silinder BeAT",
+    "category": "Mesin",
+    "brand": "AHM",
+    "location": "Rak H-03",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 28000
+  },
+  {
+    "sku": "MSM-GASKET-BEAT",
+    "name": "Gasket Full Set BeAT",
+    "category": "Mesin",
+    "brand": "AHM",
+    "location": "Rak H-04",
+    "stock": 6,
+    "min_stock": 3,
+    "unit_price": 95000
+  },
+  {
+    "sku": "MSM-KLEP-BEAT",
+    "name": "Klep In/Ex BeAT",
+    "category": "Mesin",
+    "brand": "AHM",
+    "location": "Rak H-05",
+    "stock": 6,
+    "min_stock": 2,
+    "unit_price": 78000
+  },
+  {
+    "sku": "MSM-KAMPAS-KOPLING",
+    "name": "Kampas Kopling Vixion",
+    "category": "Mesin",
+    "brand": "Yamaha",
+    "location": "Rak H-06",
+    "stock": 5,
+    "min_stock": 2,
+    "unit_price": 125000
+  },
+  {
+    "sku": "MSM-BEARING-6305",
+    "name": "Bearing Kruk As 6305",
+    "category": "Mesin",
+    "brand": "NTN",
+    "location": "Rak H-07",
+    "stock": 6,
+    "min_stock": 3,
+    "unit_price": 68000
+  },
+  {
+    "sku": "MSM-CAM-CHAIN-92L",
+    "name": "Rantai Cam Chain 92L",
+    "category": "Mesin",
+    "brand": "DID",
+    "location": "Rak H-08",
+    "stock": 5,
+    "min_stock": 2,
+    "unit_price": 88000
+  },
+  {
+    "sku": "KAK-SHOCK-DPN-BEAT",
+    "name": "Shock Depan BeAT (sepasang)",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "AHM",
+    "location": "Rak I-01",
+    "stock": 3,
+    "min_stock": 2,
+    "unit_price": 285000
+  },
+  {
+    "sku": "KAK-SHOCK-BLK-VARIO",
+    "name": "Shock Belakang Vario",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "AHM",
+    "location": "Rak I-02",
+    "stock": 1,
+    "min_stock": 2,
+    "unit_price": 325000
+  },
+  {
+    "sku": "KAK-SEAL-SHOCK-27",
+    "name": "Seal Shock Depan 27x37",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "Aspira",
+    "location": "Rak I-03",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 35000
+  },
+  {
+    "sku": "KAK-BUSHING-ARM",
+    "name": "Bushing Arm Vario",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "AHM",
+    "location": "Rak I-04",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 38000
+  },
+  {
+    "sku": "KAK-BALLRACE-KOMPOR",
+    "name": "Ball Race Kompor",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "NSK",
+    "location": "Rak I-05",
+    "stock": 7,
+    "min_stock": 3,
+    "unit_price": 85000
+  },
+  {
+    "sku": "KAK-BAN-DALAM-SHOCK",
+    "name": "Karet Shock Belakang",
+    "category": "Suspensi & Kaki-kaki",
+    "brand": "Aspira",
+    "location": "Rak I-06",
+    "stock": 9,
+    "min_stock": 3,
+    "unit_price": 42000
+  },
+  {
+    "sku": "BDY-SPAKBOR-DPN-BEAT",
+    "name": "Spakbor Depan BeAT",
+    "category": "Body & Aksesoris",
+    "brand": "AHM",
+    "location": "Rak J-01",
+    "stock": 3,
+    "min_stock": 2,
+    "unit_price": 145000
+  },
+  {
+    "sku": "BDY-VISOR-NMAX",
+    "name": "Visor NMAX",
+    "category": "Body & Aksesoris",
+    "brand": "Yamaha",
+    "location": "Rak J-02",
+    "stock": 1,
+    "min_stock": 1,
+    "unit_price": 185000
+  },
+  {
+    "sku": "BDY-GRIP-STANG",
+    "name": "Grip Stang Racing Kawahara",
+    "category": "Body & Aksesoris",
+    "brand": "Kawahara",
+    "location": "Rak J-03",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 55000
+  },
+  {
+    "sku": "BDY-SPION-BEAT",
+    "name": "Spion BeAT (sepasang)",
+    "category": "Body & Aksesoris",
+    "brand": "AHM",
+    "location": "Rak J-04",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 65000
+  },
+  {
+    "sku": "BDY-KARET-FOOTSTEP",
+    "name": "Karet Footstep BeAT",
+    "category": "Body & Aksesoris",
+    "brand": "AHM",
+    "location": "Rak J-05",
+    "stock": 14,
+    "min_stock": 5,
+    "unit_price": 28000
+  },
+  {
+    "sku": "CAI-RADIATOR-1L",
+    "name": "Cairan Radiator 1L",
+    "category": "Cairan",
+    "brand": "Aspira",
+    "location": "Rak K-01",
+    "stock": 10,
+    "min_stock": 4,
+    "unit_price": 38000
+  },
+  {
+    "sku": "CAI-LEM-GASKET",
+    "name": "Lem Gasket 85g",
+    "category": "Cairan",
+    "brand": "Aspira",
+    "location": "Rak K-02",
+    "stock": 12,
+    "min_stock": 4,
+    "unit_price": 24000
+  },
+  {
+    "sku": "CAI-CARB-CLEANER",
+    "name": "Carb Cleaner 500ml",
+    "category": "Cairan",
+    "brand": "Aspira",
+    "location": "Rak K-03",
+    "stock": 8,
+    "min_stock": 3,
+    "unit_price": 42000
+  }
+]
