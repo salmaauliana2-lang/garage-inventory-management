@@ -4,6 +4,9 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/glebarez/sqlite"
@@ -21,25 +24,63 @@ func Connect(dbPath string) (*gorm.DB, error) {
 	if dbPath == "" {
 		dbPath = "garage.db"
 	}
+	dbPath = resolveWritablePath(dbPath)
 
 	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("buka database %s: %w", dbPath, err)
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
 		return nil, err
 	}
-	// SQLite hanya mendukung satu writer; WAL menjaga pembacaan tetap lancar.
+	// SQLite hanya mendukung satu writer.
 	sqlDB.SetMaxOpenConns(1)
+
+	// Validasi: pastikan file benar-benar bisa dibuka sebelum lanjut.
+	if err := db.Exec("SELECT 1").Error; err != nil {
+		return nil, fmt.Errorf("buka database %s: %w", dbPath, err)
+	}
+	// WAL menjaga pembacaan tetap lancar, tapi tidak semua filesystem container
+	// mengizinkan file -wal/-shm; bila gagal, pakai mode journal default saja.
 	if err := db.Exec("PRAGMA journal_mode=WAL").Error; err != nil {
-		return nil, err
+		log.Printf("database: WAL tidak tersedia di %s (%v) — memakai mode journal biasa", dbPath, err)
 	}
 	if err := db.Exec("PRAGMA busy_timeout=5000").Error; err != nil {
-		return nil, err
+		log.Printf("database: busy_timeout gagal di %s: %v", dbPath, err)
 	}
+	log.Printf("database: %s", dbPath)
 	return db, nil
+}
+
+// resolveWritablePath memastikan direktori database bisa ditulis.
+// Jika tidak (misal container dengan filesystem read-only atau path yang tidak
+// ada), database dipindah ke direktori sementara agar aplikasi tetap jalan.
+func resolveWritablePath(dbPath string) string {
+	dir := filepath.Dir(dbPath)
+	if err := ensureWritable(dir); err != nil {
+		fallback := filepath.Join(os.TempDir(), filepath.Base(dbPath))
+		log.Printf("database: %s tidak bisa ditulis (%v) — memakai %s", dir, err, fallback)
+		if err2 := ensureWritable(filepath.Dir(fallback)); err2 != nil {
+			log.Printf("database: fallback %s juga bermasalah: %v", fallback, err2)
+		}
+		return fallback
+	}
+	return dbPath
+}
+
+func ensureWritable(dir string) error {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	f, err := os.CreateTemp(dir, ".dbprobe-*")
+	if err != nil {
+		return err
+	}
+	name := f.Name()
+	f.Close()
+	return os.Remove(name)
 }
 
 func Migrate(db *gorm.DB) error {
