@@ -31,8 +31,12 @@ func main() {
 		gin.SetMode(cfg.GinMode)
 	}
 	r := gin.Default()
+	// Jangan percayai proxy/X-Forwarded-For apa pun (default Gin mempercayai semua → tidak aman).
+	if err := r.SetTrustedProxies(nil); err != nil {
+		log.Fatalf("set trusted proxies: %v", err)
+	}
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowOrigins:     cfg.CORSOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: false, MaxAge: 12 * time.Hour,

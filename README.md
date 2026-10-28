@@ -118,6 +118,7 @@ npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum ter
 | `JWT_SECRET` | `dev-only-change-me` | **Wajib diganti** |
 | `JWT_EXPIRES_HOURS` | `24` | Umur token |
 | `SEED_DEMO` | `true` | Seed akun demo + katalog 78 sparepart |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Origin frontend yang diizinkan (pisahkan dengan koma) — ganti dengan domain deploy |
 
 ## Seed data sparepart
 `internal/database/parts_seed.json` berisi 78 produk (SKU unik) dengan field `sku`, `name`, `category`, `brand`, `location`, `stock`, `min_stock`, `unit_price`:

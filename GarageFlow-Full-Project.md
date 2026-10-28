@@ -255,6 +255,8 @@ DB_PATH=garage.db
 JWT_SECRET=change-this-to-a-long-random-secret-before-deploying
 JWT_EXPIRES_HOURS=24
 SEED_DEMO=true
+# Origin frontend yang diizinkan (pisahkan dengan koma) — sesuaikan domain deploy.
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
 ## 9. Catatan keamanan dan keterbatasan
@@ -284,6 +286,8 @@ DB_PATH=garage.db
 JWT_SECRET=change-this-to-a-long-random-secret-before-deploying
 JWT_EXPIRES_HOURS=24
 SEED_DEMO=true
+# Origin frontend yang diizinkan (pisahkan dengan koma) — sesuaikan domain deploy.
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 ```
 
 
@@ -427,6 +431,7 @@ npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum ter
 | `JWT_SECRET` | `dev-only-change-me` | **Wajib diganti** |
 | `JWT_EXPIRES_HOURS` | `24` | Umur token |
 | `SEED_DEMO` | `true` | Seed akun demo + katalog 78 sparepart |
+| `CORS_ORIGINS` | `http://localhost:5173,http://127.0.0.1:5173` | Origin frontend yang diizinkan (pisahkan dengan koma) — ganti dengan domain deploy |
 
 ## Seed data sparepart
 `internal/database/parts_seed.json` berisi 78 produk (SKU unik) dengan field `sku`, `name`, `category`, `brand`, `location`, `stock`, `min_stock`, `unit_price`:
@@ -746,8 +751,12 @@ func main() {
 		gin.SetMode(cfg.GinMode)
 	}
 	r := gin.Default()
+	// Jangan percayai proxy/X-Forwarded-For apa pun (default Gin mempercayai semua → tidak aman).
+	if err := r.SetTrustedProxies(nil); err != nil {
+		log.Fatalf("set trusted proxies: %v", err)
+	}
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://127.0.0.1:5173"},
+		AllowOrigins:     cfg.CORSOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: false, MaxAge: 12 * time.Hour,
@@ -796,12 +805,14 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
 	Port, GinMode, DBPath, JWTSecret string
 	JWTExpiresHours                  int
 	SeedDemo                         bool
+	CORSOrigins                      []string
 }
 
 func Load() Config {
@@ -813,7 +824,19 @@ func Load() Config {
 		JWTSecret:       env("JWT_SECRET", "dev-only-change-me"),
 		JWTExpiresHours: hours,
 		SeedDemo:        env("SEED_DEMO", "true") == "true",
+		CORSOrigins:     splitOrigins(env("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")),
 	}
+}
+
+// splitOrigins memecah daftar origin dipisah koma, mis. "https://app.example.com,https://www.example.com".
+func splitOrigins(raw string) []string {
+	var out []string
+	for _, o := range strings.Split(raw, ",") {
+		if o = strings.TrimSpace(o); o != "" {
+			out = append(out, o)
+		}
+	}
+	return out
 }
 
 func env(k, fallback string) string {
