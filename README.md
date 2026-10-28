@@ -2,10 +2,10 @@
 
 MVP aplikasi manajemen inventory bengkel motor: pencarian lokasi sparepart, alert stok minimum, restock dengan riwayat pergerakan stok, chart omzet harian dan customer selesai, service board dengan sparepart yang otomatis menjadi penjualan saat job selesai, register/login/logout, role manager/mechanic.
 
-Database default adalah **SQLite** (satu file, tanpa Docker). PostgreSQL tetap didukung lewat `DATABASE_URL` bila dibutuhkan.
+Database adalah **SQLite** (satu file) yang dibuat otomatis saat API start, dan katalog sparepart berasal dari JSON seed `internal/database/parts_seed.json`.
 
 ## Stack
-- Backend: Go, Gin, GORM, SQLite (default) / PostgreSQL (opsional), JWT, bcrypt
+- Backend: Go, Gin, GORM, SQLite, JWT, bcrypt
 - Frontend: React + Vite, React Router, Axios, Recharts
 - API: REST `/api/v1`
 - Version control: Git
@@ -27,7 +27,6 @@ garage inventory management/
 ├── frontend/            # React + Vite
 ├── garage.db            # SQLite (dibuat otomatis saat API start)
 ├── .env.example
-├── docker-compose.yml   # opsional: PostgreSQL
 ├── README.md
 └── GarageFlow-Full-Project.md
 ```
@@ -60,11 +59,10 @@ Frontend memakai tema *motorcycle garage* yang dibangun sebagai lapisan CSS over
 ## Prasyarat
 - Go 1.23+
 - Node.js 20+
-- Docker + Docker Compose **hanya jika** ingin memakai PostgreSQL
 
 ## Jalankan lokal
 
-### 1. Backend (tanpa Docker)
+### 1. Backend
 Dari root project:
 
 ```bash
@@ -105,14 +103,6 @@ cd frontend
 npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum tergzip)
 ```
 
-### 3. Opsional — pakai PostgreSQL
-```bash
-docker compose up -d db
-export DATABASE_URL="postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable"
-go run .
-```
-Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite di `DB_PATH` (default `garage.db`).
-
 ## Akun demo
 - Pengelola: `manager@garage.local` / `Garage123!`
 - Montir: `mechanic@garage.local` / `Garage123!`
@@ -125,7 +115,6 @@ Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite 
 | `APP_PORT` | `8080` | Port API |
 | `GIN_MODE` | `debug` | Mode Gin (`release` untuk produksi) |
 | `DB_PATH` | `garage.db` | Lokasi file SQLite |
-| `DATABASE_URL` | _(kosong)_ | Isi DSN `postgres://...` untuk memakai PostgreSQL |
 | `JWT_SECRET` | `dev-only-change-me` | **Wajib diganti** |
 | `JWT_EXPIRES_HOURS` | `24` | Umur token |
 | `SEED_DEMO` | `true` | Seed akun demo + katalog 78 sparepart |
@@ -214,7 +203,7 @@ git branch -M main
 ```
 
 ## Catatan sebelum production
-- SQLite sangat praktis untuk demo/single-user, tetapi tulis-serial. Untuk multi-user dengan trafik tinggi, pindah ke PostgreSQL cukup dengan mengisi `DATABASE_URL`.
+- SQLite praktis untuk demo/single-user karena tanpa setup, tetapi tulis-serial (satu writer). Untuk trafik tinggi, pertimbangkan migrasi ke database client-server — datanya sudah terpisah rapi di model GORM, tinggal ganti driver.
 - Token di localStorage rentan dicuri jika ada XSS. Untuk production pertimbangkan HttpOnly Secure SameSite cookie, CSP, HTTPS, rate limiting, audit log, backup DB, dan refresh/revocation strategy.
 - Logout JWT stateless hanya menghapus token di browser; token curian tetap valid sampai expiry. Tambahkan denylist/token version jika perlu revoke di server.
 - Atur CORS berdasarkan domain frontend aktual, gunakan secrets manager, batasi akses database, serta buat backup dan migration terkontrol.

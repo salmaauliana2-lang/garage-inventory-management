@@ -2,7 +2,7 @@
 
 > Dokumentasi dan source code lengkap dalam satu file Markdown.
 >
-> Stack: Go, Gin, GORM, SQLite (default) / PostgreSQL (opsional), React, Vite, JWT, REST API, Git.
+> Stack: Go, Gin, GORM, SQLite, React, Vite, JWT, REST API, Git.
 
 ## 1. Tujuan aplikasi
 
@@ -31,7 +31,7 @@ flowchart LR
     DB --- MOVEMENTS[(stock_movements)]
 ```
 
-Database default adalah SQLite: satu file `garage.db`, tanpa Docker, dibuat otomatis saat API start. PostgreSQL tetap didukung — isi `DATABASE_URL` dengan DSN `postgres://...` (misalnya dari `docker compose up -d db`), dan `DB_PATH` diabaikan.
+Database adalah **SQLite**: satu file `garage.db`, dibuat otomatis saat API start. Katalog sparepart berasal dari JSON seed `internal/database/parts_seed.json` (di-embed ke binary lewat `go:embed`).
 
 ### Alur request
 
@@ -181,18 +181,10 @@ curl -X POST http://localhost:8080/api/v1/parts/1/restock \
 
 - Go 1.23+
 - Node.js 20+
-- Docker + Docker Compose **hanya jika** memilih PostgreSQL
 
 ### Database
 
-Default **SQLite** — tidak ada langkah setup, `garage.db` dibuat otomatis di direktori kerja saat API start.
-
-Opsional PostgreSQL:
-
-```bash
-docker compose up -d db
-export DATABASE_URL="postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable"
-```
+**SQLite** — tidak ada langkah setup, `garage.db` dibuat otomatis di direktori kerja saat API start.
 
 ### Jalankan backend (Linux/macOS)
 
@@ -219,7 +211,7 @@ go mod download
 go run .
 ```
 
-Catatan: `DB_PATH` relatif terhadap direktori tempat perintah dijalankan. Untuk PostgreSQL, set `DATABASE_URL` dan biarkan `DB_PATH` kosong.
+Catatan: `DB_PATH` relatif terhadap direktori tempat perintah dijalankan.
 
 ### Jalankan frontend
 
@@ -258,10 +250,8 @@ File `.env.example`:
 ```dotenv
 APP_PORT=8080
 GIN_MODE=debug
-# Default: SQLite, file lokal, tanpa Docker. Dibuat otomatis saat API start.
+# SQLite: satu file lokal, dibuat otomatis saat API start.
 DB_PATH=garage.db
-# Opsional: pakai PostgreSQL. Kalau DATABASE_URL diisi, DB_PATH diabaikan.
-# DATABASE_URL=postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable
 JWT_SECRET=change-this-to-a-long-random-secret-before-deploying
 JWT_EXPIRES_HOURS=24
 SEED_DEMO=true
@@ -270,10 +260,10 @@ SEED_DEMO=true
 ## 9. Catatan keamanan dan keterbatasan
 
 - Ganti `JWT_SECRET` dan password demo sebelum penggunaan non-demo.
-- SQLite cocok untuk demo/single-user (satu writer). Untuk multi-user dengan trafik tinggi, pindah ke PostgreSQL cukup dengan mengisi `DATABASE_URL`; file `garage.db`, `garage.db-wal`, dan `garage.db-shm` sudah masuk `.gitignore`.
+- SQLite cocok untuk demo/single-user (satu writer). Untuk multi-user dengan trafik tinggi, migrasikan ke database client-server — model GORM sudah terpisah dari driver. File `garage.db`, `garage.db-wal`, dan `garage.db-shm` sudah masuk `.gitignore`.
 - Token pada `localStorage` rentan dicuri jika aplikasi memiliki XSS. Untuk production, pertimbangkan cookie `HttpOnly`, `Secure`, `SameSite`, CSP, dan HTTPS.
 - Logout JWT stateless hanya menghapus token dari browser; token yang dicuri tetap valid sampai expiry. Tambahkan denylist atau token version untuk revocation.
-- Batasi CORS ke domain frontend yang benar, batasi akses PostgreSQL, gunakan backup, rate limiting, audit log, dan migration terkontrol.
+- Batasi CORS ke domain frontend yang benar, gunakan backup, rate limiting, audit log, dan migration terkontrol.
 - Project ini adalah MVP dan belum menjalani pengujian end-to-end di lingkungan pengguna.
 
 ---
@@ -289,10 +279,8 @@ Setiap file di bawah adalah file asli project. Salin isi code block sesuai path 
 ```text
 APP_PORT=8080
 GIN_MODE=debug
-# Default: SQLite, file lokal, tanpa Docker. Dibuat otomatis saat API start.
+# SQLite: satu file lokal, dibuat otomatis saat API start.
 DB_PATH=garage.db
-# Opsional: pakai PostgreSQL. Kalau DATABASE_URL diisi, DB_PATH diabaikan.
-# DATABASE_URL=postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable
 JWT_SECRET=change-this-to-a-long-random-secret-before-deploying
 JWT_EXPIRES_HOURS=24
 SEED_DEMO=true
@@ -323,10 +311,10 @@ coverage.out
 
 MVP aplikasi manajemen inventory bengkel motor: pencarian lokasi sparepart, alert stok minimum, restock dengan riwayat pergerakan stok, chart omzet harian dan customer selesai, service board dengan sparepart yang otomatis menjadi penjualan saat job selesai, register/login/logout, role manager/mechanic.
 
-Database default adalah **SQLite** (satu file, tanpa Docker). PostgreSQL tetap didukung lewat `DATABASE_URL` bila dibutuhkan.
+Database adalah **SQLite** (satu file) yang dibuat otomatis saat API start, dan katalog sparepart berasal dari JSON seed `internal/database/parts_seed.json`.
 
 ## Stack
-- Backend: Go, Gin, GORM, SQLite (default) / PostgreSQL (opsional), JWT, bcrypt
+- Backend: Go, Gin, GORM, SQLite, JWT, bcrypt
 - Frontend: React + Vite, React Router, Axios, Recharts
 - API: REST `/api/v1`
 - Version control: Git
@@ -348,7 +336,6 @@ garage inventory management/
 ├── frontend/            # React + Vite
 ├── garage.db            # SQLite (dibuat otomatis saat API start)
 ├── .env.example
-├── docker-compose.yml   # opsional: PostgreSQL
 ├── README.md
 └── GarageFlow-Full-Project.md
 ```
@@ -381,11 +368,10 @@ Frontend memakai tema *motorcycle garage* yang dibangun sebagai lapisan CSS over
 ## Prasyarat
 - Go 1.23+
 - Node.js 20+
-- Docker + Docker Compose **hanya jika** ingin memakai PostgreSQL
 
 ## Jalankan lokal
 
-### 1. Backend (tanpa Docker)
+### 1. Backend
 Dari root project:
 
 ```bash
@@ -426,14 +412,6 @@ cd frontend
 npm run build     # hasil di frontend/dist (CSS ± 55 kB, JS ± 660 kB belum tergzip)
 ```
 
-### 3. Opsional — pakai PostgreSQL
-```bash
-docker compose up -d db
-export DATABASE_URL="postgres://garage:garage_dev_password@localhost:5432/garage_inventory?sslmode=disable"
-go run .
-```
-Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite di `DB_PATH` (default `garage.db`).
-
 ## Akun demo
 - Pengelola: `manager@garage.local` / `Garage123!`
 - Montir: `mechanic@garage.local` / `Garage123!`
@@ -446,7 +424,6 @@ Jika `DATABASE_URL` kosong atau bukan DSN `postgres://`, backend memakai SQLite 
 | `APP_PORT` | `8080` | Port API |
 | `GIN_MODE` | `debug` | Mode Gin (`release` untuk produksi) |
 | `DB_PATH` | `garage.db` | Lokasi file SQLite |
-| `DATABASE_URL` | _(kosong)_ | Isi DSN `postgres://...` untuk memakai PostgreSQL |
 | `JWT_SECRET` | `dev-only-change-me` | **Wajib diganti** |
 | `JWT_EXPIRES_HOURS` | `24` | Umur token |
 | `SEED_DEMO` | `true` | Seed akun demo + katalog 78 sparepart |
@@ -535,37 +512,10 @@ git branch -M main
 ```
 
 ## Catatan sebelum production
-- SQLite sangat praktis untuk demo/single-user, tetapi tulis-serial. Untuk multi-user dengan trafik tinggi, pindah ke PostgreSQL cukup dengan mengisi `DATABASE_URL`.
+- SQLite praktis untuk demo/single-user karena tanpa setup, tetapi tulis-serial (satu writer). Untuk trafik tinggi, pertimbangkan migrasi ke database client-server — datanya sudah terpisah rapi di model GORM, tinggal ganti driver.
 - Token di localStorage rentan dicuri jika ada XSS. Untuk production pertimbangkan HttpOnly Secure SameSite cookie, CSP, HTTPS, rate limiting, audit log, backup DB, dan refresh/revocation strategy.
 - Logout JWT stateless hanya menghapus token di browser; token curian tetap valid sampai expiry. Tambahkan denylist/token version jika perlu revoke di server.
 - Atur CORS berdasarkan domain frontend aktual, gunakan secrets manager, batasi akses database, serta buat backup dan migration terkontrol.
-```
-
-
-## File: `docker-compose.yml`
-
-```yaml
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: garage-postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: garage
-      POSTGRES_PASSWORD: garage_dev_password
-      POSTGRES_DB: garage_inventory
-    ports:
-      - "5432:5432"
-    volumes:
-      - garage_pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U garage -d garage_inventory"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-
-volumes:
-  garage_pgdata:
 ```
 
 
@@ -582,7 +532,6 @@ require (
 	github.com/glebarez/sqlite v1.11.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	golang.org/x/crypto v0.31.0
-	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
 
@@ -600,10 +549,6 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.5.5 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -619,7 +564,6 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
@@ -680,14 +624,6 @@ github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26 h1:Xim43kblpZXfIBQsbu
 github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26/go.mod h1:dDKJzRmX4S37WGHujM7tX//fmj1uioxKzKxz3lo4HJo=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/jackc/pgpassfile v1.0.0 h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
-github.com/jackc/pgpassfile v1.0.0/go.mod h1:CEx0iS5ambNFdcRtxPj5JhEz+xB6uRky5eyVu/W2HEg=
-github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a h1:bbPeKD0xmW/Y25WS6cokEszi5g+S0QxI/d45PkRi7Nk=
-github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a/go.mod h1:5TJZWKEWniPve33vlWYSoGYefn3gLQRzjfDlhSJ9ZKM=
-github.com/jackc/pgx/v5 v5.5.5 h1:amBjrZVmksIdNjxGW/IiIMzxMKZFelXbUoPNb+8sjQw=
-github.com/jackc/pgx/v5 v5.5.5/go.mod h1:ez9gk+OAat140fv9ErkZDYFWmXLfV+++K0uAOiwgm1A=
-github.com/jackc/puddle/v2 v2.2.1 h1:RhxXJtFG022u4ibrCSMSiu5aOq1i77R3OHKNJj77OAk=
-github.com/jackc/puddle/v2 v2.2.1/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
@@ -743,8 +679,6 @@ golang.org/x/crypto v0.31.0 h1:ihbySMvVjLAeSH1IbfcRTkD/iNscyz8rGzjF/E5hV6U=
 golang.org/x/crypto v0.31.0/go.mod h1:kDsLvtWBEx7MV9tJOj9bnXsPbxwJQ6csT/x4KIN4Ssk=
 golang.org/x/net v0.25.0 h1:d/OCCoBEUq33pjydKrGQhw7IlUPI2Oylr+8qLx49kac=
 golang.org/x/net v0.25.0/go.mod h1:JkAGAh7GEvH74S6FOH42FLoXpXbE/aqXSrIQjXgsiwM=
-golang.org/x/sync v0.10.0 h1:3NQrjDixjgGwUOCaF8w2+VYHv0Ve/vGYSbdkTa98gmQ=
-golang.org/x/sync v0.10.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=
 golang.org/x/sys v0.5.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.6.0/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.28.0 h1:Fksou7UEQUWlKvIdsqzJmUmCX3cZuD2+P3XyyzwMhlA=
@@ -761,8 +695,6 @@ gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EV
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
 gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
-gorm.io/driver/postgres v1.5.11 h1:ubBVAfbKEUld/twyKZ0IYn9rSQh448EdelLYk9Mv314=
-gorm.io/driver/postgres v1.5.11/go.mod h1:DX3GReXH+3FPWGrrgffdvCk3DQ1dwDPdmbenSkweRGI=
 gorm.io/gorm v1.25.12 h1:I0u8i2hWQItBq1WfE0o2+WuL9+8L21K9e2HHSTE/0f8=
 gorm.io/gorm v1.25.12/go.mod h1:xh7N7RHfYlNc5EmcI/El95gXusucDrQnHXe0+CgWcLQ=
 modernc.org/libc v1.22.5 h1:91BNch/e5B0uPbJFgqbxXuOnxBQjlS//icfQEGmvyjE=
@@ -797,7 +729,7 @@ import (
 
 func main() {
 	cfg := config.Load()
-	db, err := database.Connect(cfg.DatabaseURL, cfg.DBPath)
+	db, err := database.Connect(cfg.DBPath)
 	if err != nil {
 		log.Fatalf("database connection failed: %v", err)
 	}
@@ -867,9 +799,9 @@ import (
 )
 
 type Config struct {
-	Port, GinMode, DatabaseURL, DBPath, JWTSecret string
-	JWTExpiresHours                               int
-	SeedDemo                                      bool
+	Port, GinMode, DBPath, JWTSecret string
+	JWTExpiresHours                  int
+	SeedDemo                         bool
 }
 
 func Load() Config {
@@ -877,7 +809,6 @@ func Load() Config {
 	return Config{
 		Port:            env("APP_PORT", "8080"),
 		GinMode:         env("GIN_MODE", "debug"),
-		DatabaseURL:     env("DATABASE_URL", ""),
 		DBPath:          env("DB_PATH", "garage.db"),
 		JWTSecret:       env("JWT_SECRET", "dev-only-change-me"),
 		JWTExpiresHours: hours,
@@ -903,12 +834,10 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/glebarez/sqlite"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"motorcycle-garage-inventory/internal/models"
 )
@@ -916,23 +845,14 @@ import (
 //go:embed parts_seed.json
 var partsSeedJSON []byte
 
-// Connect membuka database. Default-nya SQLite (file lokal, tanpa Docker).
-// Isi DATABASE_URL dengan DSN postgres://... untuk memakai PostgreSQL.
-func Connect(databaseURL, dbPath string) (*gorm.DB, error) {
-	usePostgres := strings.HasPrefix(databaseURL, "postgres://") || strings.HasPrefix(databaseURL, "postgresql://")
-
+// Connect membuka database SQLite lokal (satu file).
+// Katalog awal berasal dari parts_seed.json yang di-embed lewat go:embed.
+func Connect(dbPath string) (*gorm.DB, error) {
 	if dbPath == "" {
 		dbPath = "garage.db"
 	}
 
-	var dialector gorm.Dialector
-	if usePostgres {
-		dialector = postgres.Open(databaseURL)
-	} else {
-		dialector = sqlite.Open(dbPath)
-	}
-
-	db, err := gorm.Open(dialector, &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -941,19 +861,13 @@ func Connect(databaseURL, dbPath string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if usePostgres {
-		sqlDB.SetMaxOpenConns(20)
-		sqlDB.SetMaxIdleConns(5)
-		sqlDB.SetConnMaxLifetime(time.Hour)
-	} else {
-		// SQLite hanya mendukung satu writer; WAL menjaga pembacaan tetap lancar.
-		sqlDB.SetMaxOpenConns(1)
-		if err := db.Exec("PRAGMA journal_mode=WAL").Error; err != nil {
-			return nil, err
-		}
-		if err := db.Exec("PRAGMA busy_timeout=5000").Error; err != nil {
-			return nil, err
-		}
+	// SQLite hanya mendukung satu writer; WAL menjaga pembacaan tetap lancar.
+	sqlDB.SetMaxOpenConns(1)
+	if err := db.Exec("PRAGMA journal_mode=WAL").Error; err != nil {
+		return nil, err
+	}
+	if err := db.Exec("PRAGMA busy_timeout=5000").Error; err != nil {
+		return nil, err
 	}
 	return db, nil
 }
@@ -2071,7 +1985,7 @@ func (h *Handler) ListParts(c *gin.Context) {
 	q := h.DB.Model(&models.Part{})
 	search := strings.TrimSpace(c.Query("search"))
 	if search != "" {
-		// LOWER(...) LIKE dipakai agar query jalan di SQLite maupun PostgreSQL.
+		// LOWER(...) LIKE dipakai agar pencarian tidak case-sensitive.
 		like := "%" + strings.ToLower(search) + "%"
 		q = q.Where("LOWER(name) LIKE ? OR LOWER(sku) LIKE ? OR LOWER(category) LIKE ? OR LOWER(location) LIKE ? OR LOWER(brand) LIKE ?", like, like, like, like, like)
 	}
@@ -2244,7 +2158,7 @@ func (h *Handler) CreateSale(c *gin.Context) {
 
 	var sale models.Sale
 	err = h.DB.Transaction(func(tx *gorm.DB) error {
-		// Update bersyarat: atomik, tidak butuh SELECT ... FOR UPDATE (portabel SQLite/PostgreSQL).
+		// Update bersyarat: atomik, tidak butuh SELECT ... FOR UPDATE.
 		res := tx.Model(&models.Part{}).
 			Where("id = ? AND stock >= ?", in.PartID, in.Quantity).
 			UpdateColumn("stock", gorm.Expr("stock - ?", in.Quantity))
@@ -2492,7 +2406,7 @@ func (h *Handler) Dashboard(c *gin.Context) {
 	h.DB.Model(&models.Part{}).Where("stock <= min_stock").Count(&lowCount)
 	h.DB.Model(&models.ServiceJob{}).Where("status IN ?", []string{"queued", "in_progress", "waiting_parts"}).Count(&activeJobs)
 
-	// Chart diagregasi di Go agar tidak bergantung pada fungsi tanggal khas PostgreSQL.
+	// Chart diagregasi di Go agar tidak bergantung pada fungsi tanggal khas SQL.
 	type DaySale struct {
 		Day      string `json:"day"`
 		Total    int64  `json:"total"`

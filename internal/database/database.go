@@ -4,12 +4,10 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/glebarez/sqlite"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"motorcycle-garage-inventory/internal/models"
 )
@@ -17,23 +15,14 @@ import (
 //go:embed parts_seed.json
 var partsSeedJSON []byte
 
-// Connect membuka database. Default-nya SQLite (file lokal, tanpa Docker).
-// Isi DATABASE_URL dengan DSN postgres://... untuk memakai PostgreSQL.
-func Connect(databaseURL, dbPath string) (*gorm.DB, error) {
-	usePostgres := strings.HasPrefix(databaseURL, "postgres://") || strings.HasPrefix(databaseURL, "postgresql://")
-
+// Connect membuka database SQLite lokal (satu file).
+// Katalog awal berasal dari parts_seed.json yang di-embed lewat go:embed.
+func Connect(dbPath string) (*gorm.DB, error) {
 	if dbPath == "" {
 		dbPath = "garage.db"
 	}
 
-	var dialector gorm.Dialector
-	if usePostgres {
-		dialector = postgres.Open(databaseURL)
-	} else {
-		dialector = sqlite.Open(dbPath)
-	}
-
-	db, err := gorm.Open(dialector, &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -42,19 +31,13 @@ func Connect(databaseURL, dbPath string) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	if usePostgres {
-		sqlDB.SetMaxOpenConns(20)
-		sqlDB.SetMaxIdleConns(5)
-		sqlDB.SetConnMaxLifetime(time.Hour)
-	} else {
-		// SQLite hanya mendukung satu writer; WAL menjaga pembacaan tetap lancar.
-		sqlDB.SetMaxOpenConns(1)
-		if err := db.Exec("PRAGMA journal_mode=WAL").Error; err != nil {
-			return nil, err
-		}
-		if err := db.Exec("PRAGMA busy_timeout=5000").Error; err != nil {
-			return nil, err
-		}
+	// SQLite hanya mendukung satu writer; WAL menjaga pembacaan tetap lancar.
+	sqlDB.SetMaxOpenConns(1)
+	if err := db.Exec("PRAGMA journal_mode=WAL").Error; err != nil {
+		return nil, err
+	}
+	if err := db.Exec("PRAGMA busy_timeout=5000").Error; err != nil {
+		return nil, err
 	}
 	return db, nil
 }

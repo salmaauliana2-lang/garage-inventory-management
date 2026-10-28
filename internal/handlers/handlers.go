@@ -118,7 +118,7 @@ func (h *Handler) ListParts(c *gin.Context) {
 	q := h.DB.Model(&models.Part{})
 	search := strings.TrimSpace(c.Query("search"))
 	if search != "" {
-		// LOWER(...) LIKE dipakai agar query jalan di SQLite maupun PostgreSQL.
+		// LOWER(...) LIKE dipakai agar pencarian tidak case-sensitive.
 		like := "%" + strings.ToLower(search) + "%"
 		q = q.Where("LOWER(name) LIKE ? OR LOWER(sku) LIKE ? OR LOWER(category) LIKE ? OR LOWER(location) LIKE ? OR LOWER(brand) LIKE ?", like, like, like, like, like)
 	}
@@ -291,7 +291,7 @@ func (h *Handler) CreateSale(c *gin.Context) {
 
 	var sale models.Sale
 	err = h.DB.Transaction(func(tx *gorm.DB) error {
-		// Update bersyarat: atomik, tidak butuh SELECT ... FOR UPDATE (portabel SQLite/PostgreSQL).
+		// Update bersyarat: atomik, tidak butuh SELECT ... FOR UPDATE.
 		res := tx.Model(&models.Part{}).
 			Where("id = ? AND stock >= ?", in.PartID, in.Quantity).
 			UpdateColumn("stock", gorm.Expr("stock - ?", in.Quantity))
@@ -539,7 +539,7 @@ func (h *Handler) Dashboard(c *gin.Context) {
 	h.DB.Model(&models.Part{}).Where("stock <= min_stock").Count(&lowCount)
 	h.DB.Model(&models.ServiceJob{}).Where("status IN ?", []string{"queued", "in_progress", "waiting_parts"}).Count(&activeJobs)
 
-	// Chart diagregasi di Go agar tidak bergantung pada fungsi tanggal khas PostgreSQL.
+	// Chart diagregasi di Go agar tidak bergantung pada fungsi tanggal khas SQL.
 	type DaySale struct {
 		Day      string `json:"day"`
 		Total    int64  `json:"total"`
